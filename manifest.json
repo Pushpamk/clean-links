@@ -6,7 +6,8 @@
   "permissions": [
     "clipboardRead",
     "clipboardWrite",
-    "activeTab"
+    "activeTab",
+    "storage"
   ],
   "content_scripts": [
     {
@@ -16,6 +17,7 @@
     }
   ],
   "action": {
+    "default_popup": "popup.html",
     "default_title": "Clean Links - Automatically cleans copied URLs"
   },
   "icons": {
