@@ -7,7 +7,9 @@
     "clipboardRead",
     "clipboardWrite",
     "activeTab",
-    "storage"
+    "storage",
+    "notifications",
+    "scripting"
   ],
   "content_scripts": [
     {
@@ -25,5 +27,17 @@
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "clean-url": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+L",
+        "mac": "Command+Shift+L"
+      },
+      "description": "Clean URL from clipboard"
+    }
   }
 }
