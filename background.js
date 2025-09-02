@@ -23,10 +23,19 @@ async function cleanURL(url, settings) {
       const newUrl = new URL(url);
       const whitelist = settings.whitelist.map(p => p.toLowerCase());
       
-      for (const [key] of newUrl.searchParams) {
-        if (!whitelist.includes(key.toLowerCase())) {
-          newUrl.searchParams.delete(key);
+      // Clear all search params first, then add back whitelisted ones
+      const paramsToKeep = [];
+      for (const [key, value] of newUrl.searchParams) {
+        if (whitelist.includes(key.toLowerCase())) {
+          paramsToKeep.push([key, value]);
         }
+      }
+      
+      newUrl.search = '';
+      newUrl.hash = '';
+      
+      for (const [key, value] of paramsToKeep) {
+        newUrl.searchParams.set(key, value);
       }
       
       return newUrl.toString();
@@ -34,15 +43,21 @@ async function cleanURL(url, settings) {
       const newUrl = new URL(url);
       const blacklist = settings.blacklist.map(p => p.toLowerCase());
       
-      for (const [key] of newUrl.searchParams) {
+      // Remove blacklisted params
+      for (const [key] of [...newUrl.searchParams]) {
         if (blacklist.includes(key.toLowerCase())) {
           newUrl.searchParams.delete(key);
         }
       }
       
+      // Clear hash/fragment
+      newUrl.hash = '';
+      
       return newUrl.toString();
     } else {
-      return `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
+      // Remove all mode - clean everything
+      const cleanUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
+      return cleanUrl;
     }
   } catch (error) {
     return null;

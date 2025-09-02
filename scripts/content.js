@@ -7,10 +7,19 @@ async function cleanURL(url) {
       const newUrl = new URL(url);
       const whitelist = settings.whitelist.map(p => p.toLowerCase());
       
-      for (const [key] of newUrl.searchParams) {
-        if (!whitelist.includes(key.toLowerCase())) {
-          newUrl.searchParams.delete(key);
+      // Clear all search params first, then add back whitelisted ones
+      const paramsToKeep = [];
+      for (const [key, value] of newUrl.searchParams) {
+        if (whitelist.includes(key.toLowerCase())) {
+          paramsToKeep.push([key, value]);
         }
+      }
+      
+      newUrl.search = '';
+      newUrl.hash = '';
+      
+      for (const [key, value] of paramsToKeep) {
+        newUrl.searchParams.set(key, value);
       }
       
       return newUrl.toString();
@@ -18,15 +27,21 @@ async function cleanURL(url) {
       const newUrl = new URL(url);
       const blacklist = settings.blacklist.map(p => p.toLowerCase());
       
-      for (const [key] of newUrl.searchParams) {
+      // Remove blacklisted params
+      for (const [key] of [...newUrl.searchParams]) {
         if (blacklist.includes(key.toLowerCase())) {
           newUrl.searchParams.delete(key);
         }
       }
       
+      // Clear hash/fragment
+      newUrl.hash = '';
+      
       return newUrl.toString();
     } else {
-      return `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
+      // Remove all mode - clean everything
+      const cleanUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
+      return cleanUrl;
     }
   } catch (error) {
     return null;
@@ -86,6 +101,12 @@ async function handleCopyEvent() {
   
   try {
     isProcessing = true;
+    
+    // Check if clipboard API is available and not blocked
+    if (!navigator.clipboard || !navigator.clipboard.readText) {
+      return;
+    }
+    
     const clipboardText = await navigator.clipboard.readText();
     
     if (!clipboardText || !isValidURL(clipboardText)) {
@@ -102,20 +123,33 @@ async function handleCopyEvent() {
     showNotification('Link cleaned!');
     
   } catch (error) {
+    // Silently ignore clipboard access errors on restricted sites
+    if (error.name === 'NotAllowedError' || error.message.includes('permissions policy')) {
+      return;
+    }
     console.log('Clean Links: Could not access clipboard', error);
   } finally {
     isProcessing = false;
   }
 }
 
-document.addEventListener('copy', () => {
-  setTimeout(handleCopyEvent, 10);
-});
+// Check if we're on a site that blocks clipboard access
+function isRestrictedSite() {
+  const restrictedDomains = ['web.whatsapp.com', 'wa.me'];
+  return restrictedDomains.some(domain => window.location.hostname.includes(domain));
+}
 
-document.addEventListener('keydown', (event) => {
-  if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
+// Only add event listeners if clipboard access might be available
+if (!isRestrictedSite()) {
+  document.addEventListener('copy', () => {
     setTimeout(handleCopyEvent, 10);
-  }
-});
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
+      setTimeout(handleCopyEvent, 10);
+    }
+  });
+}
 
 console.log('Clean Links extension loaded');
