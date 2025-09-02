@@ -10,6 +10,16 @@ A powerful, privacy-focused browser extension that automatically cleans URLs by 
 *See how Clean Links automatically removes tracking parameters when you copy URLs, keeping your links clean and private.*
 
 ### Anti-Phishing Protection in Action
+```
+Suspicious URL: https://pаypaI.com/login (using capital 'i')
+Result: PHISHING WARNING displayed, URL not processed
+
+Suspicious URL: https://pаypal.com/login (using Cyrillic 'а')
+Result: PHISHING WARNING displayed, URL not processed
+
+Suspicious URL: https://gооgle.com/search (using Cyrillic 'о')
+Result: PHISHING WARNING displayed, URL not processed
+```
 ![Phishing Protection](examples/recording_2.gif)
 
 *See how Clean Links identifies and highlights similar-looking characters that help protect you from suspicious links and potential phishing attacks.*
@@ -112,6 +122,9 @@ Cleaned:  https://example.com/article?page=2&v=1.0
 ### Phishing Detection
 ```
 Suspicious URL: https://pаypal.com/login (using Cyrillic 'а')
+Result: PHISHING WARNING displayed, URL not processed
+
+Suspicious URL: https://gооgle.com/search (using Cyrillic 'о')
 Result: PHISHING WARNING displayed, URL not processed
 ```
 
