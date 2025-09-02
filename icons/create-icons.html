@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icon Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        canvas { border: 1px solid #ccc; margin: 10px; }
+        .icon-set { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+        .download-btn { background: #4CAF50; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Clean Links Icon Generator</h1>
+    <p>Generate PNG icons from SVG for the browser extension</p>
+    
+    <div class="icon-set">
+        <canvas id="icon16" width="16" height="16"></canvas>
+        <canvas id="icon32" width="32" height="32"></canvas>
+        <canvas id="icon48" width="48" height="48"></canvas>
+        <canvas id="icon128" width="128" height="128"></canvas>
+    </div>
+    
+    <div>
+        <button class="download-btn" onclick="downloadIcon('icon16', 'icon16.png')">Download 16px</button>
+        <button class="download-btn" onclick="downloadIcon('icon32', 'icon32.png')">Download 32px</button>
+        <button class="download-btn" onclick="downloadIcon('icon48', 'icon48.png')">Download 48px</button>
+        <button class="download-btn" onclick="downloadIcon('icon128', 'icon128.png')">Download 128px</button>
+    </div>
+
+    <script>
+        const svgContent = `<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#4CAF50;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#45a049;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <circle cx="64" cy="64" r="60" fill="url(#grad1)" stroke="#2e7d32" stroke-width="2"/>
+            <g transform="translate(64,64)">
+                <rect x="-30" y="-6" width="24" height="12" rx="6" fill="white" stroke="none"/>
+                <rect x="6" y="-6" width="24" height="12" rx="6" fill="white" stroke="none"/>
+                <g stroke="white" stroke-width="2" fill="none">
+                    <path d="M-20,-25 L-20,-15 M-25,-20 L-15,-20"/>
+                    <path d="M25,-25 L25,-15 M20,-20 L30,-20"/>
+                    <path d="M-15,20 L-15,30 M-20,25 L-10,25"/>
+                    <path d="M20,20 L20,30 M15,25 L25,25"/>
+                </g>
+            </g>
+            <text x="64" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">CLEAN</text>
+        </svg>`;
+
+        function renderIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            const img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, size, size);
+            };
+            
+            const blob = new Blob([svgContent], {type: 'image/svg+xml'});
+            const url = URL.createObjectURL(blob);
+            img.src = url;
+        }
+
+        function downloadIcon(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // Render all icons on page load
+        renderIcon('icon16', 16);
+        renderIcon('icon32', 32);
+        renderIcon('icon48', 48);
+        renderIcon('icon128', 128);
+    </script>
+</body>
+</html>

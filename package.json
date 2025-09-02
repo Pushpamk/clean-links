@@ -1,0 +1,24 @@
+{
+  "name": "clean-links",
+  "version": "1.0.0",
+  "description": "Browser extension that automatically removes query parameters from copied URLs",
+  "scripts": {
+    "build": "echo 'Building extension...' && cp -r . dist/ && rm -rf dist/node_modules dist/.git dist/package*.json",
+    "test": "echo 'Running tests...' && open test/test.html",
+    "lint": "echo 'No linting configured - extension uses vanilla JavaScript'"
+  },
+  "keywords": [
+    "browser-extension",
+    "privacy",
+    "url-cleaner",
+    "chrome-extension",
+    "firefox-addon"
+  ],
+  "author": "Pushpam",
+  "license": "MIT",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pushpamkumar/clean-links.git"
+  }
+}
