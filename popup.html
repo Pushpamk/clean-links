@@ -23,14 +23,11 @@
             width: 24px;
             height: 24px;
             margin-right: 8px;
-            background: #4CAF50;
+            background-image: url('icons/icon16.png');
+            background-size: 16px 16px;
+            background-repeat: no-repeat;
+            background-position: center;
             border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
         }
         .title {
             font-weight: 600;
@@ -126,16 +123,30 @@
             margin-top: 4px;
             line-height: 1.3;
         }
+        kbd {
+            background-color: #f1f3f4;
+            border: 1px solid #dadce0;
+            border-radius: 3px;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            color: #3c4043;
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1;
+            padding: 2px 4px;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="icon">🔗</div>
+        <div class="icon"></div>
         <div class="title">Clean Links</div>
     </div>
     
     <div class="description">
-        Click below to clean the URL currently in your clipboard by removing query parameters.
+        Click below to clean the URL currently in your clipboard by removing query parameters.<br>
+        <strong>Tip:</strong> Use <kbd>Ctrl+Shift+L</kbd> (or <kbd>Cmd+Shift+L</kbd> on Mac) to clean clipboard URLs instantly.
     </div>
     
     <button id="cleanButton" class="button">Clean URL</button>
