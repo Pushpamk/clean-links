@@ -15,12 +15,34 @@
   pointer-events: none;
 }
 
+.clean-links-toast.warning {
+  background-color: #dc3545;
+  color: white;
+  border-left: 4px solid #721c24;
+  animation: slideInFadeOutWarning 5s ease-in-out;
+}
+
 @keyframes slideInFadeOut {
   0% {
     opacity: 0;
     transform: translateX(100px);
   }
   10%, 80% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFadeOutWarning {
+  0% {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  5%, 85% {
     opacity: 1;
     transform: translateX(0);
   }

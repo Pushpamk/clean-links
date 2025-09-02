@@ -73,6 +73,35 @@ function isValidURL(text) {
   }
 }
 
+function detectSuspiciousCharacters(url) {
+  try {
+    const urlObj = new URL(url);
+    const domain = urlObj.hostname;
+    
+    // Check for non-ASCII characters that could be homoglyphs
+    const suspiciousChars = [];
+    const allowedChars = /^[a-zA-Z0-9.-]+$/;
+    
+    if (!allowedChars.test(domain)) {
+      // Find suspicious characters
+      for (let i = 0; i < domain.length; i++) {
+        const char = domain[i];
+        if (!/[a-zA-Z0-9.-]/.test(char)) {
+          suspiciousChars.push(char);
+        }
+      }
+    }
+    
+    return {
+      hasSuspiciousChars: suspiciousChars.length > 0,
+      suspiciousChars: [...new Set(suspiciousChars)],
+      domain: domain
+    };
+  } catch (error) {
+    return { hasSuspiciousChars: false, suspiciousChars: [], domain: '' };
+  }
+}
+
 async function showNotification(message, type = 'basic') {
   try {
     await chrome.notifications.create({
@@ -113,6 +142,13 @@ async function cleanClipboardURL() {
       return;
     }
     
+    // Check for suspicious characters first
+    const suspiciousCheck = detectSuspiciousCharacters(clipboardText);
+    if (suspiciousCheck.hasSuspiciousChars) {
+      await showNotification(`⚠️ PHISHING WARNING: Suspicious characters in "${suspiciousCheck.domain}": ${suspiciousCheck.suspiciousChars.join(', ')}`);
+      return; // Don't clean suspicious URLs
+    }
+    
     const settings = await getSettings();
     const cleanedURL = await cleanURL(clipboardText, settings);
     
@@ -126,6 +162,8 @@ async function cleanClipboardURL() {
       return;
     }
     
+    // Convert to lowercase for consistency
+    const finalURL = cleanedURL.toLowerCase();
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       function: async (url) => {
@@ -135,7 +173,7 @@ async function cleanClipboardURL() {
           console.error('Failed to write to clipboard:', error);
         }
       },
-      args: [cleanedURL]
+      args: [finalURL]
     });
     
     await showNotification('URL cleaned and copied!');

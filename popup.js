@@ -56,6 +56,35 @@ function isValidURL(text) {
   }
 }
 
+function detectSuspiciousCharacters(url) {
+  try {
+    const urlObj = new URL(url);
+    const domain = urlObj.hostname;
+    
+    // Check for non-ASCII characters that could be homoglyphs
+    const suspiciousChars = [];
+    const allowedChars = /^[a-zA-Z0-9.-]+$/;
+    
+    if (!allowedChars.test(domain)) {
+      // Find suspicious characters
+      for (let i = 0; i < domain.length; i++) {
+        const char = domain[i];
+        if (!/[a-zA-Z0-9.-]/.test(char)) {
+          suspiciousChars.push(char);
+        }
+      }
+    }
+    
+    return {
+      hasSuspiciousChars: suspiciousChars.length > 0,
+      suspiciousChars: [...new Set(suspiciousChars)],
+      domain: domain
+    };
+  } catch (error) {
+    return { hasSuspiciousChars: false, suspiciousChars: [], domain: '' };
+  }
+}
+
 function showStatus(message, type) {
   const status = document.getElementById('status');
   status.textContent = message;
@@ -113,6 +142,13 @@ async function cleanClipboardURL() {
       return;
     }
     
+    // Check for suspicious characters first
+    const suspiciousCheck = detectSuspiciousCharacters(clipboardText);
+    if (suspiciousCheck.hasSuspiciousChars) {
+      showStatus(`⚠️ PHISHING WARNING: Suspicious characters in "${suspiciousCheck.domain}": ${suspiciousCheck.suspiciousChars.join(', ')}`, 'error');
+      return; // Don't clean suspicious URLs
+    }
+    
     const cleanedURL = await cleanURL(clipboardText, settings);
     
     if (!cleanedURL) {
@@ -125,7 +161,9 @@ async function cleanClipboardURL() {
       return;
     }
     
-    await navigator.clipboard.writeText(cleanedURL);
+    // Convert to lowercase for consistency
+    const finalURL = cleanedURL.toLowerCase();
+    await navigator.clipboard.writeText(finalURL);
     showStatus('URL cleaned and copied!', 'success');
     
   } catch (error) {

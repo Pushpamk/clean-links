@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Clean Links",
   "version": "1.0.0",
-  "description": "Automatically removes query parameters from copied URLs to clean up links and protect privacy",
+  "description": "Removes query parameters from copied URLs to clean up links and protect privacy",
   "permissions": [
     "clipboardRead",
     "clipboardWrite",
@@ -20,7 +20,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Clean Links - Automatically cleans copied URLs"
+    "default_title": "Clean Links - Cleans copied URLs"
   },
   "icons": {
     "16": "icons/icon16.png",

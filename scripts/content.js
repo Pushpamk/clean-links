@@ -57,7 +57,36 @@ function isValidURL(text) {
   }
 }
 
-function showNotification(message) {
+function detectSuspiciousCharacters(url) {
+  try {
+    const urlObj = new URL(url);
+    const domain = urlObj.hostname;
+    
+    // Check for non-ASCII characters that could be homoglyphs
+    const suspiciousChars = [];
+    const allowedChars = /^[a-zA-Z0-9.-]+$/;
+    
+    if (!allowedChars.test(domain)) {
+      // Find suspicious characters
+      for (let i = 0; i < domain.length; i++) {
+        const char = domain[i];
+        if (!/[a-zA-Z0-9.-]/.test(char)) {
+          suspiciousChars.push(char);
+        }
+      }
+    }
+    
+    return {
+      hasSuspiciousChars: suspiciousChars.length > 0,
+      suspiciousChars: [...new Set(suspiciousChars)],
+      domain: domain
+    };
+  } catch (error) {
+    return { hasSuspiciousChars: false, suspiciousChars: [], domain: '' };
+  }
+}
+
+function showNotification(message, isWarning = false) {
   const existingNotification = document.getElementById('clean-links-notification');
   if (existingNotification) {
     existingNotification.remove();
@@ -65,7 +94,7 @@ function showNotification(message) {
 
   const notification = document.createElement('div');
   notification.id = 'clean-links-notification';
-  notification.className = 'clean-links-toast';
+  notification.className = isWarning ? 'clean-links-toast warning' : 'clean-links-toast';
   notification.textContent = message;
   
   document.body.appendChild(notification);
@@ -74,7 +103,7 @@ function showNotification(message) {
     if (notification.parentNode) {
       notification.remove();
     }
-  }, 2500);
+  }, isWarning ? 5000 : 2500); // Show warnings longer
 }
 
 async function getSettings() {
@@ -113,13 +142,22 @@ async function handleCopyEvent() {
       return;
     }
 
+    // Check for suspicious characters first
+    const suspiciousCheck = detectSuspiciousCharacters(clipboardText);
+    if (suspiciousCheck.hasSuspiciousChars) {
+      showNotification(`⚠️ PHISHING WARNING: Suspicious characters detected in domain "${suspiciousCheck.domain}". Characters: ${suspiciousCheck.suspiciousChars.join(', ')}`, true);
+      return; // Don't clean suspicious URLs
+    }
+
     const cleanedURL = await cleanURL(clipboardText);
     
     if (!cleanedURL || cleanedURL === clipboardText) {
       return;
     }
 
-    await navigator.clipboard.writeText(cleanedURL);
+    // Convert to lowercase for consistency
+    const finalURL = cleanedURL.toLowerCase();
+    await navigator.clipboard.writeText(finalURL);
     showNotification('Link cleaned!');
     
   } catch (error) {
