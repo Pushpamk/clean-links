@@ -166,6 +166,14 @@ Common tracking parameters are pre-configured in blacklist mode:
 - `notifications`: Show desktop notifications for keyboard shortcut
 - `scripting`: Execute clipboard operations via keyboard shortcut
 
+## Known Limitations
+
+Some websites restrict clipboard access due to security policies (Google Docs, WhatsApp Web, Outlook, etc.). On these sites:
+- **Automatic cleaning is disabled** to respect browser security policies
+- **Use the keyboard shortcut** `Ctrl+Shift+L` (or `Cmd+Shift+L` on Mac) for manual cleaning
+- **Use the extension popup** by clicking the extension icon for manual cleaning
+- This behavior is intentional to maintain security and browser extension store compliance
+
 ## Technical Details
 
 - **Manifest Version**: 3 (latest Chrome extension standard)

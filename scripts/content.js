@@ -161,11 +161,15 @@ async function handleCopyEvent() {
     showNotification('Link cleaned!');
     
   } catch (error) {
-    // Silently ignore clipboard access errors on restricted sites
-    if (error.name === 'NotAllowedError' || error.message.includes('permissions policy')) {
+    // Silently ignore all clipboard access errors
+    if (error.name === 'NotAllowedError' || 
+        error.message.includes('permissions policy') ||
+        error.message.includes('Clipboard API') ||
+        error.message.includes('blocked')) {
       return;
     }
-    console.log('Clean Links: Could not access clipboard', error);
+    // Only log unexpected errors
+    console.log('Clean Links: Unexpected error', error);
   } finally {
     isProcessing = false;
   }
@@ -173,7 +177,11 @@ async function handleCopyEvent() {
 
 // Check if we're on a site that blocks clipboard access
 function isRestrictedSite() {
-  const restrictedDomains = ['web.whatsapp.com', 'wa.me'];
+  const restrictedDomains = [
+    'web.whatsapp.com', 'wa.me', 'docs.google.com', 'sheets.google.com',
+    'slides.google.com', 'drive.google.com', 'mail.google.com',
+    'outlook.live.com', 'outlook.office.com'
+  ];
   return restrictedDomains.some(domain => window.location.hostname.includes(domain));
 }
 

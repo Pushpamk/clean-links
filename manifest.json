@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Clean Links",
+  "name": "Clean Links - Open source URL cleaner",
   "version": "1.0.0",
   "description": "Removes query parameters from copied URLs to clean up links and protect privacy",
   "permissions": [
@@ -20,7 +20,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Clean Links - Cleans copied URLs"
+    "default_title": "Clean Links - Open source URL cleaner"
   },
   "icons": {
     "16": "icons/icon16.png",
