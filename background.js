@@ -102,13 +102,14 @@ function detectSuspiciousCharacters(url) {
   }
 }
 
-async function showNotification(message, type = 'basic') {
+async function showNotification(message, isWarning = false) {
   try {
     await chrome.notifications.create({
       type: 'basic',
       iconUrl: 'icons/icon48.png',
       title: 'Clean Links',
-      message: message
+      message: message,
+      priority: isWarning ? 2 : 1
     });
   } catch (error) {
     console.log('Could not show notification:', error);
@@ -145,7 +146,7 @@ async function cleanClipboardURL() {
     // Check for suspicious characters first
     const suspiciousCheck = detectSuspiciousCharacters(clipboardText);
     if (suspiciousCheck.hasSuspiciousChars) {
-      await showNotification(`⚠️ PHISHING WARNING: Suspicious characters in "${suspiciousCheck.domain}": ${suspiciousCheck.suspiciousChars.join(', ')}`);
+      await showNotification(`⚠️ PHISHING WARNING: Suspicious characters in "${suspiciousCheck.domain}": ${suspiciousCheck.suspiciousChars.join(', ')}`, true);
       return; // Don't clean suspicious URLs
     }
     
@@ -175,8 +176,35 @@ async function cleanClipboardURL() {
       },
       args: [finalURL]
     });
-    
+
+    // Show both desktop notification and page notification
     await showNotification('URL cleaned and copied!');
+    
+    // Also show the visual notification on the page (like automatic cleaning)
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      function: (message) => {
+        // Create the same notification as automatic cleaning
+        const existingNotification = document.getElementById('clean-links-notification');
+        if (existingNotification) {
+          existingNotification.remove();
+        }
+
+        const notification = document.createElement('div');
+        notification.id = 'clean-links-notification';
+        notification.className = 'clean-links-toast';
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 2500);
+      },
+      args: ['Link cleaned!']
+    });
     
   } catch (error) {
     console.error('Error in cleanClipboardURL:', error);
