@@ -1,5 +1,7 @@
 # Clean Links Browser Extension
 
+<img src="icons/icon128.png" alt="Clean Links Icon" width="128" height="128">
+
 A powerful, privacy-focused browser extension that automatically cleans URLs by removing tracking parameters and provides anti-phishing protection. Keep your links clean, safe, and private!
 
 ## Demo Videos
@@ -38,11 +40,13 @@ Result: PHISHING WARNING displayed, URL not processed
 - **Safe processing**: Blocks cleaning of suspicious URLs to prevent accidental interaction
 
 ### **Multiple Access Methods**
-- **Automatic**: Copy any URL and it's cleaned instantly
+- **Automatic**: Copy any URL and it's cleaned instantly (can be disabled)
 - **Popup interface**: Click the extension icon for manual control
 - **Keyboard shortcut**: `Ctrl+Shift+L` (Windows/Linux) or `Cmd+Shift+L` (Mac)
+- **Context menu**: Right-click on links or selected URLs and choose "Clean and copy"
 
 ### **Customization Options**
+- **Automatic cleaning toggle**: Enable or disable automatic URL cleaning when copying
 - **Remove All**: Strip all query parameters (default)
 - **Whitelist**: Keep only specified parameters (e.g., `v, page, id`)
 - **Blacklist**: Remove only tracking parameters (e.g., `utm_source, fbclid, gclid`)
@@ -65,9 +69,11 @@ Result: PHISHING WARNING displayed, URL not processed
 
 ### Manual Mode
 1. Copy a URL to your clipboard
-2. Click the extension icon or press `Ctrl+Shift+L`
-3. Configure your cleaning preferences in the popup
-4. Click "Clean URL" button for instant cleaning
+2. Use any of these methods:
+   - Click the extension icon and press "Clean URL"
+   - Press `Ctrl+Shift+L` (or `Cmd+Shift+L` on Mac)
+   - Right-click on a link or selected URL and choose "Clean and copy"
+3. Configure your cleaning preferences in the popup if needed
 
 ### Anti-Phishing Protection
 - Scans domains for suspicious characters (Cyrillic letters, unusual Unicode)
@@ -134,11 +140,21 @@ Open `test/test.html` in your browser to test the extension with various URL for
 
 ## Configuration
 
-The extension provides three cleaning modes:
+The extension provides flexible configuration options:
 
+### Automatic Cleaning
+- **Toggle**: Enable or disable automatic URL cleaning when copying links
+- **Default**: Enabled (can be turned off in popup settings)
+
+### Cleaning Modes
 1. **Remove All** (Default): Strips all query parameters and fragments
 2. **Whitelist**: Only keeps parameters you specify (comma-separated)
 3. **Blacklist**: Only removes parameters you specify (comma-separated)
+
+### Manual Access Methods
+- **Extension popup**: Click the extension icon for manual cleaning and settings
+- **Keyboard shortcut**: `Ctrl+Shift+L` (Windows/Linux) or `Cmd+Shift+L` (Mac)
+- **Context menu**: Right-click on links or selected URLs for "Clean and copy" option
 
 Common tracking parameters are pre-configured in blacklist mode:
 - `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`
@@ -162,9 +178,10 @@ Common tracking parameters are pre-configured in blacklist mode:
 - `clipboardRead`: Read URLs from clipboard for cleaning
 - `clipboardWrite`: Replace clipboard with cleaned URLs
 - `activeTab`: Access current tab for keyboard shortcut functionality
-- `storage`: Save your cleaning preferences
+- `storage`: Save your cleaning preferences and automatic cleaning toggle
 - `notifications`: Show desktop notifications for keyboard shortcut
 - `scripting`: Execute clipboard operations via keyboard shortcut
+- `contextMenus`: Add "Clean and copy" option to right-click menus
 
 ## Known Limitations
 
