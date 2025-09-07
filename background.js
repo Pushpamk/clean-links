@@ -212,6 +212,118 @@ async function cleanClipboardURL() {
   }
 }
 
+// Create context menu when extension starts
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: 'clean-and-copy',
+    title: 'Clean and copy',
+    contexts: ['selection', 'link'],
+    documentUrlPatterns: ['http://*/*', 'https://*/*']
+  });
+});
+
+// Handle context menu clicks
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  if (info.menuItemId === 'clean-and-copy') {
+    // Get URL from either selected text or link href
+    const urlToClean = info.linkUrl || info.selectionText;
+    
+    if (!urlToClean || !isValidURL(urlToClean)) {
+      await showNotification('No valid URL found');
+      return;
+    }
+    
+    // Check for suspicious characters first
+    const suspiciousCheck = detectSuspiciousCharacters(urlToClean);
+    if (suspiciousCheck.hasSuspiciousChars) {
+      await showNotification(`⚠️ PHISHING WARNING: Suspicious characters in "${suspiciousCheck.domain}": ${suspiciousCheck.suspiciousChars.join(', ')}`, true);
+      
+      // Also show visual warning on page
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: (message) => {
+          const existingNotification = document.getElementById('clean-links-notification');
+          if (existingNotification) {
+            existingNotification.remove();
+          }
+
+          const notification = document.createElement('div');
+          notification.id = 'clean-links-notification';
+          notification.className = 'clean-links-toast warning';
+          notification.textContent = message;
+          
+          document.body.appendChild(notification);
+          
+          setTimeout(() => {
+            if (notification.parentNode) {
+              notification.remove();
+            }
+          }, 5000);
+        },
+        args: [`⚠️ PHISHING WARNING: Suspicious characters detected in domain "${suspiciousCheck.domain}"`]
+      });
+      return;
+    }
+    
+    const settings = await getSettings();
+    const cleanedURL = await cleanURL(urlToClean, settings);
+    
+    if (!cleanedURL) {
+      await showNotification('Unable to clean URL');
+      return;
+    }
+    
+    if (cleanedURL === urlToClean) {
+      await showNotification('URL is already clean');
+      // Still copy it to clipboard
+    }
+    
+    // Convert to lowercase for consistency
+    const finalURL = cleanedURL.toLowerCase();
+    
+    // Copy to clipboard
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      function: async (url) => {
+        try {
+          await navigator.clipboard.writeText(url);
+        } catch (error) {
+          console.error('Failed to write to clipboard:', error);
+        }
+      },
+      args: [finalURL]
+    });
+
+    // Show notifications
+    await showNotification('URL cleaned and copied!');
+    
+    // Also show the visual notification on the page
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      function: (message) => {
+        const existingNotification = document.getElementById('clean-links-notification');
+        if (existingNotification) {
+          existingNotification.remove();
+        }
+
+        const notification = document.createElement('div');
+        notification.id = 'clean-links-notification';
+        notification.className = 'clean-links-toast';
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 2500);
+      },
+      args: ['Link cleaned!']
+    });
+  }
+});
+
 chrome.commands.onCommand.addListener(async (command) => {
   if (command === 'clean-url') {
     await cleanClipboardURL();
