@@ -102,14 +102,16 @@ async function getSettings() {
     const result = await chrome.storage.sync.get({
       mode: 'remove_all',
       whitelist: [],
-      blacklist: ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'ref', 'fbclid', 'gclid']
+      blacklist: ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'ref', 'fbclid', 'gclid'],
+      automaticCleaning: true
     });
     return result;
   } catch (error) {
     return {
       mode: 'remove_all',
       whitelist: [],
-      blacklist: ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'ref', 'fbclid', 'gclid']
+      blacklist: ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'ref', 'fbclid', 'gclid'],
+      automaticCleaning: true
     };
   }
 }
@@ -178,6 +180,7 @@ async function cleanClipboardURL() {
 async function loadSettings() {
   const settings = await getSettings();
   
+  document.getElementById('automaticCleaning').checked = settings.automaticCleaning;
   document.querySelector(`input[name="mode"][value="${settings.mode}"]`).checked = true;
   document.getElementById('whitelist').value = settings.whitelist.join(', ');
   document.getElementById('blacklist').value = settings.blacklist.join(', ');
@@ -195,6 +198,7 @@ function updateModeVisibility() {
 }
 
 async function handleSettingsChange() {
+  const automaticCleaning = document.getElementById('automaticCleaning').checked;
   const mode = document.querySelector('input[name="mode"]:checked').value;
   const whitelist = document.getElementById('whitelist').value
     .split(',')
@@ -205,11 +209,14 @@ async function handleSettingsChange() {
     .map(s => s.trim())
     .filter(s => s.length > 0);
   
-  await saveSettings({ mode, whitelist, blacklist });
+  await saveSettings({ automaticCleaning, mode, whitelist, blacklist });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('cleanButton').addEventListener('click', cleanClipboardURL);
+  
+  // Add automatic cleaning toggle listener
+  document.getElementById('automaticCleaning').addEventListener('change', handleSettingsChange);
   
   const modeInputs = document.querySelectorAll('input[name="mode"]');
   modeInputs.forEach(input => {

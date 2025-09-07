@@ -1,7 +1,9 @@
-async function cleanURL(url) {
+async function cleanURL(url, settings = null) {
   try {
     const urlObj = new URL(url);
-    const settings = await getSettings();
+    if (!settings) {
+      settings = await getSettings();
+    }
     
     if (settings.mode === 'whitelist') {
       const newUrl = new URL(url);
@@ -111,14 +113,16 @@ async function getSettings() {
     const result = await chrome.storage.sync.get({
       mode: 'remove_all',
       whitelist: [],
-      blacklist: ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'ref', 'fbclid', 'gclid']
+      blacklist: ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'ref', 'fbclid', 'gclid'],
+      automaticCleaning: true
     });
     return result;
   } catch (error) {
     return {
       mode: 'remove_all',
       whitelist: [],
-      blacklist: ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'ref', 'fbclid', 'gclid']
+      blacklist: ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'ref', 'fbclid', 'gclid'],
+      automaticCleaning: true
     };
   }
 }
@@ -130,6 +134,12 @@ async function handleCopyEvent() {
   
   try {
     isProcessing = true;
+    
+    // Check if automatic cleaning is enabled
+    const settings = await getSettings();
+    if (!settings.automaticCleaning) {
+      return;
+    }
     
     // Check if clipboard API is available and not blocked
     if (!navigator.clipboard || !navigator.clipboard.readText) {
@@ -149,7 +159,7 @@ async function handleCopyEvent() {
       return; // Don't clean suspicious URLs
     }
 
-    const cleanedURL = await cleanURL(clipboardText);
+    const cleanedURL = await cleanURL(clipboardText, settings);
     
     if (!cleanedURL || cleanedURL === clipboardText) {
       return;
