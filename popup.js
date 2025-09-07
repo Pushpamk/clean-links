@@ -56,6 +56,17 @@ function isValidURL(text) {
   }
 }
 
+function normalizeDomain(url) {
+  try {
+    const urlObj = new URL(url);
+    // Only lowercase the hostname, keep everything else as-is
+    urlObj.hostname = urlObj.hostname.toLowerCase();
+    return urlObj.toString();
+  } catch (error) {
+    return url;
+  }
+}
+
 function detectSuspiciousCharacters(url) {
   try {
     const urlObj = new URL(url);
@@ -163,8 +174,8 @@ async function cleanClipboardURL() {
       return;
     }
     
-    // Convert to lowercase for consistency
-    const finalURL = cleanedURL.toLowerCase();
+    // Convert only domain to lowercase for consistency
+    const finalURL = normalizeDomain(cleanedURL);
     await navigator.clipboard.writeText(finalURL);
     showStatus('URL cleaned and copied!', 'success');
     
