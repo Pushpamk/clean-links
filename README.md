@@ -83,7 +83,12 @@ Result: PHISHING WARNING displayed, URL not processed
 ## Installation
 
 ### From Browser Extension Store
-*Coming soon - will be available on Chrome Web Store, Firefox Add-ons, and Microsoft Edge Add-ons*
+
+#### Chrome Web Store
+[Install Clean Links from Chrome Web Store](https://chromewebstore.google.com/detail/fdbaibjbniafaknlnmajdojhpikcadpd)
+
+#### Other Browsers
+*Firefox Add-ons and Microsoft Edge Add-ons coming soon*
 
 ### Manual Installation (Developer Mode)
 
